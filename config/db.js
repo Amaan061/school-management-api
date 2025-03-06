@@ -1,4 +1,4 @@
-import mysql from 'mysql2';
+const mysql = require('mysql2');
 
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -6,17 +6,16 @@ const connection = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: false, // Important for Aiven Cloud SSL
-  }
+  ssl: { rejectUnauthorized: false }, // Required for Aiven MySQL
 });
 
 connection.connect((err) => {
   if (err) {
     console.error('Database connection failed:', err);
   } else {
-    console.log('✅ Connected to Aiven MySQL!');
+    console.log('Connected to Aiven MySQL!');
   }
 });
 
-export default connection;
+
+module.exports = connection.promise();
