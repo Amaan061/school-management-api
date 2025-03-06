@@ -1,13 +1,15 @@
 const db = require('../config/db');
 
-const addSchool = (name, address, latitude, longitude, callback) => {
+const addSchool = async (name, address, latitude, longitude) => {
     const query = 'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)';
-    db.query(query, [name, address, latitude, longitude], callback);
+    const [result] = await db.query(query, [name, address, latitude, longitude]); 
+    return result;
 };
 
-const getAllSchools = (callback) => {
+const getAllSchools = async () => {
     const query = 'SELECT * FROM schools';
-    db.query(query, callback);
+    const [rows] = await db.query(query); 
+    return rows;
 };
 
 module.exports = { addSchool, getAllSchools };

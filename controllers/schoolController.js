@@ -1,33 +1,32 @@
 const { addSchool, getAllSchools } = require('../models/schoolModel');
 
-// here we are Adding a new school
-const createSchool = (req, res) => {
-    const { name, address, latitude, longitude } = req.body;
 
-    if (!name || !address || !latitude || !longitude) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
+const createSchool = async (req, res) => {
+    try {
+        const { name, address, latitude, longitude } = req.body;
 
-    addSchool(name, address, latitude, longitude, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
+        if (!name || !address || !latitude || !longitude) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
+
+        const result = await addSchool(name, address, latitude, longitude); 
         res.json({ message: 'School added successfully', schoolId: result.insertId });
-    });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
-// Here we are Listing all schools sorted by proximity
-const listSchools = (req, res) => {
-    const { latitude, longitude } = req.query;
 
-    if (!latitude || !longitude) {
-        return res.status(400).json({ error: 'Latitude and longitude are required' });
-    }
+const listSchools = async (req, res) => {
+    try {
+        const { latitude, longitude } = req.query;
 
-    getAllSchools((err, results) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
+        if (!latitude || !longitude) {
+            return res.status(400).json({ error: 'Latitude and longitude are required' });
         }
+
+        const results = await getAllSchools(); 
 
         const userLat = parseFloat(latitude);
         const userLon = parseFloat(longitude);
@@ -40,12 +39,15 @@ const listSchools = (req, res) => {
 
         results.sort((a, b) => a.distance - b.distance);
         res.json(results);
-    });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
-
+// Function to calculate geographical distance
 function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
+    const R = 6371; // Earth radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
